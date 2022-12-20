@@ -2,10 +2,10 @@
 This repository contains all working material pertinent to the Big Man Betweenness project, `report.ipynb`, submitted to the 2022 NFL Big Data Bowl competition. It contains the following material:
 
 - Scripts (*in italics*):
-  - *build.R* - takes the raw input files, assembles networks, calculates measures of interest, creates weekly 'builds' of data for analysis
-	- *batch_build.R* - batch implementation of build.R which takes a command line argument that indicates the week of data to work on (enables parallel computation)
+  	- *build.R* - takes the raw input files, assembles networks, calculates measures of interest, creates weekly 'builds' of data for analysis
+  	- *batch_build.R* - batch implementation of build.R which takes a command line argument that indicates the week of data to work on (enables parallel computation)
 	- *analysis.R* - takes the builds, wrangles them into analysis-friendly form, and produces the results found in the notebook
-	- *gifs.R* - script used to save down the individual images in the GIFs
+ 	- *gifs.R* - script used to save down the individual images in the GIFs
 
 
 - Folders (**in bold**):
