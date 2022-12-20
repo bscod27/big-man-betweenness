@@ -1,5 +1,5 @@
 # big-man-betweenness
-This repository contains all working material pertinent to the Big Man Betweenness project, `report.ipynb`, submitted to the NFL Big Data Bowl 2023 Kaggle competition. It contains the following material:
+This repository contains all working material pertinent to the Big Man Betweenness project, which was submitted to the NFL Big Data Bowl 2023 Kaggle competition. It contains the following material in addition to the submitted deliverable, `report.ipynb`:
 
 - Scripts (*in italics*)
   	- *build.R* - takes the raw input files, assembles networks, calculates measures of interest, creates weekly 'builds' of data for analysis
