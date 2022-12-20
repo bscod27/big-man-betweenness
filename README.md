@@ -1,5 +1,5 @@
 # big-man-betweenness
-This repository contains all working material pertinent to the Big Man Betweenness [notebook](link), which was submitted to the NFL Big Data Bowl 2023 Kaggle competition. It contains the following supplementary material:
+This repository contains all working material pertinent to the Big Man Betweenness [notebook](https://www.kaggle.com/code/brunoscodari/big-man-betweenness-bmb), which was submitted to the NFL Big Data Bowl 2023 Kaggle competition. It contains the following supplementary material:
 
 - Scripts (*in italics*)
   	- *build.R* - takes the raw input files, assembles networks, calculates measures of interest, creates weekly 'builds' of data for analysis
