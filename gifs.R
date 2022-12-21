@@ -1,22 +1,21 @@
 library(tidyverse)
+library(data.table)
 library(igraph)
 library(lme4)
+library(latex2exp)
 
-setwd('~/01. Dartmouth/04. Coursework/05. Fall 2022/03. Big Data Bowl/03. Linked Git/data') 
 euclidean_dist <- function(x, y) {sqrt(sum((x - y)^2))}
 
-##### 00. Read in the data #####
+##### 00. Read in the data ##### >> rejigger to pull from github
+data_str <- 'https://raw.githubusercontent.com/bscod27/big-man-betweenness/main/data/'
+games <- read.csv(paste0(data_str,'games.csv'))
+plays <- read.csv(paste0(data_str,'plays.csv'))
+players <- read.csv(paste0(data_str,'players.csv'))
+pffScoutingData <- read.csv(paste0(data_str,'pffScoutingData.csv'))
+
 tracking <- data.frame()
-for (i in list.files(pattern='.csv')) {
-  print(paste0(i,'...'))
-  df <- read.csv(i)
-  if (str_detect(str_match(i, '(.*).csv')[2], 'week')) {
-    df$week <- as.numeric(str_match(i, 'week(.*).csv')[2])
-    tracking <- rbind(tracking, df)
-  } else {
-    assign(str_match(i, '(.*).csv')[2], df)
-  }
-  rm(df)
+for (i in 1:8) {
+  tracking <- rbind(tracking, fread(paste0(data_str, 'week', i, '.gz')))
 }
 
 ##### 01. Join all data into main frame #####
@@ -143,10 +142,10 @@ for (week in 1:length(unique(df$week))) { # unique weeks
           V(g)$pos <- nodes$officialPosition
           g <- delete.edges(g, which(1/E(g)$weight > 7))
           edge_attr(g)$weight[which(1/E(g)$weight > 7)] <- 0.00001 # really low value
-          V(g)$label.cex = 1
+          V(g)$label.cex = .5
           
           # first
-          png(paste('../gifs/pos/gif_',frame,'.png'))
+          png(paste('../gifs/pos/gif_',frame,'.png'), units='in', height=5, width=5,res=300)
           plot(g, layout=l, vertex.label=V(g)$pos)
           dev.off()
           
@@ -154,11 +153,11 @@ for (week in 1:length(unique(df$week))) { # unique weeks
           l_idx <- which(names(V(g)) %in% line_slice$player)
           betw <- betweenness(g, normalized = T)
           V(g)$betw <- betw
-          png(paste('../gifs/betw/gif_',frame,'.png'))
+          png(paste('../gifs/betw/gif_',frame,'.png'), units='in', height=5, width=5,res=300)
           plot(g, layout=l, vertex.label=V(g)$pos)
           text(
-            0, 1.3, paste0('Square root of O-line betweenness: ', 
-                             format(signif(mean(sqrt(betw[l_idx])),digits=10), nsmall=10)
+            0, 1.25, TeX(
+            paste('$\\sqrt{O-line \\ betweenness} = $',format(signif(mean(sqrt(betw[l_idx])),digits=10), nsmall=10))
               )
             )
           dev.off()
@@ -168,6 +167,8 @@ for (week in 1:length(unique(df$week))) { # unique weeks
     }
     game_count <- game_count + 1
     break
-  }
+  
+    }
   break
 }
+

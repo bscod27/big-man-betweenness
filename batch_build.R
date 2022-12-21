@@ -1,4 +1,5 @@
 library(tidyverse)
+library(data.table)
 library(igraph)
 
 args <- commandArgs(trailingOnly = TRUE)
@@ -7,22 +8,18 @@ if (length(args) != 1) {
 }
 week <- args[1]
 
-setwd('~/01. Dartmouth/04. Coursework/05. Fall 2022/03. Big Data Bowl/03. Linked Git/data')
 euclidean_dist <- function(x, y) {sqrt(sum((x - y)^2))}
 
-
 ##### 00. Read in the data #####
+data_str <- 'https://raw.githubusercontent.com/bscod27/big-man-betweenness/main/data/'
+games <- read.csv(paste0(data_str,'games.csv'))
+plays <- read.csv(paste0(data_str,'plays.csv'))
+players <- read.csv(paste0(data_str,'players.csv'))
+pffScoutingData <- read.csv(paste0(data_str,'pffScoutingData.csv'))
+
 tracking <- data.frame()
-for (i in list.files(pattern='.csv')) {
-  print(paste0(i,'...'))
-  df <- read.csv(i)
-  if (str_detect(str_match(i, '(.*).csv')[2], 'week')) {
-    df$week <- as.numeric(str_match(i, 'week(.*).csv')[2])
-    tracking <- rbind(tracking, df)
-  } else {
-    assign(str_match(i, '(.*).csv')[2], df)
-  }
-  rm(df)
+for (i in 1:8) {
+  tracking <- rbind(tracking, fread(paste0(data_str, 'week', i, '.gz')))
 }
 
 ##### 01. Join all data into main frame #####
@@ -187,4 +184,4 @@ main <- df_line %>%
   left_join(plays, by = c('gameId', 'playId')) %>%
   left_join(games, by = c('week', 'gameId'))
 
-write.csv(main, paste0('build_',week,'.csv'))
+write.csv(main, paste0('builds/build',week,'.csv'))

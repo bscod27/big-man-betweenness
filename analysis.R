@@ -1,17 +1,20 @@
 library(tidyverse)
+library(data.table)
 library(lme4)
-
-setwd('~/01. Dartmouth/04. Coursework/05. Fall 2022/03. Big Data Bowl/03. Linked Git/builds')
+library(sfsmisc)
+library(latex2exp)
+library(nflfastR)
+library(ggimage)
+library(ggthemes) 
+library(gganimate)
+library(cowplot)
+library(teamcolors) 
 
 ##### 01. Data load #####
+data_str <- 'https://raw.githubusercontent.com/bscod27/big-man-betweenness/main/builds/'
 main <- data.frame()
-for (i in list.files(pattern='.csv')) {
-  print(paste0(i,'...'))
-  dat <- read.csv(i) %>% dplyr::select(-X)
-  name <- str_match(i, '(.*).csv')[2]
-  assign(name, dat)
-  main <- rbind(main, dat)
-  rm(dat)
+for (i in 1:8) {
+  main <- rbind(main, fread(paste0(data_str, 'build', i, '.csv')))
 }
 
 ##### 02. Data wrangling #####
@@ -86,8 +89,8 @@ rolled <- df %>%
     )
 
 # rolled %>%
-  # dplyr::select(week, gameId, playId, pos_team, def_team, down, yardstogo, contains('def'), line_betw, pressure) %>%
-  # write.csv(., '../snippets/rolled.csv', row.names = FALSE)
+#   dplyr::select(week, gameId, playId, pos_team, def_team, down, yardstogo, contains('def'), line_betw, pressure) %>%
+#   write.csv(., 'snippets/rolled.csv', row.names = FALSE)
 
 ##### 04. Create BMB metric  #####
 summary(mod <- lmer(
@@ -96,24 +99,42 @@ summary(mod <- lmer(
 rolled$exp <- predict(mod, rolled)
 rolled$oe <- sqrt(rolled$line_betw)/rolled$exp
 
+
+# png('images/sampling_distribution.png', units='in', width=11, height=5, res=700)
+
+par(mfrow=c(1, 2))
 plot(
   density(rolled$oe, bw=.065), 
-  main='Empirical Distribution vs. Normal Approximation for BMB', 
-  col='blue')
+  main='Probability Density Function', 
+  col='blue', 
+  xlab='Quantile '
+  )
 mu <- mean(rolled$oe); sig <- sd(rolled$oe)
 x <- seq(0, 2, length.out=10000)
 y_norm <- dnorm(x, mu, sig)
-lines(x, y_norm, col='red', lty=2)
+lines(x, y_norm, col='red')
 legend(
-  x='topright', col=c('blue', 'red'), lty=c(1,2),
-  legend=c('Empirical Distribution', 'Normal Approximation')
+  x='right', col=c('blue', 'red'), lty=1,
+  legend=c('Empirical', 'Normal Approx.')
   )
+abline(h=0, col='grey')
 
-(delta_x <- sd(sqrt(rolled$line_betw))/mean(sqrt(rolled$line_betw)))
-(delta_y <- sd(rolled$exp)/mean(rolled$exp))
-(a <- 1/delta_x)
-(b <- 1/delta_y)
+ecdf.ksCI(
+  rolled$oe, main="Cumulative Distribution Function",
+  col='red', ci.col=NA, xlab='Quantile', ylab='Probability', 
+  )
+p <- seq(0, 1, length.out=1000)
+quantile <- qnorm(p, mean = mu, sd = sig)
+f_x <- pnorm(quantile, mu, sig)
+lines(quantile, f_x, col='blue')
+legend(
+  x='right', col=c('blue', 'red'), lty=1,
+  legend=c('Empirical', 'Normal Approx.')
+)
+abline(h=1, col='grey')
+abline(h=0, col='grey')
 
+# dev.off()
 
 ##### 05. Statistical inference #####
 Get.Coefs <- function(model) {
@@ -178,51 +199,152 @@ sorted <- team %>%
   arrange(desc(avg_bmb)) %>% 
   mutate(index = 1:32)
 
-# plot
-par(mfrow=c(1, 2))  
-plot(sorted$avg_bmb, xlab='Rank', ylab='Avg Big Man Betweenness', main='Rank-ordered Team O-lines by BMB', ylim=c(0.92, 1.05))
-text(x=sorted$index, y=sorted$avg_bmb, labels=sorted$pos_team, pos=1, cex=0.75)
-abline(h=1, col='red', lty='dashed')
+asp_ratio <- 1.6
 
-plot(team$avg_exp_betw, team$avg_sqrt_betw, xlab='Avg Expected Betweenness', 
-     ylab='Avg Square Root of Observed Betweenness', 
-     main='O-line Pass Protection Efficiency Matrix')
+# rank-order
+tr <- sorted %>%
+  left_join(nflfastR::teams_colors_logos, by = c('pos_team' = 'team_abbr')) %>% 
+  ggplot(aes(x = reorder(pos_team, -avg_bmb), y = avg_bmb)) +
+  geom_image(aes(image = team_logo_wikipedia), size = 0.035, by = "width", asp = asp_ratio) +
+  scale_fill_identity(aesthetics = c("fill", "color")) +
+  labs(
+    x = 'Rank', y='BMB', title='Rank ordered O-lines'
+  ) + 
+  scale_x_discrete(labels = 1:32)+
+  theme_classic() +
+  theme(
+    aspect.ratio = 1/asp_ratio,
+    plot.title = element_text(hjust = 0.5)
+  ) +
+  geom_hline(yintercept = 1, color='red', linetype = 'dashed')
+  
+# ggsave("images/team_ratings.png", tr, height = 5, width = 7)
 
-abline(0, 1, col='red', lty='dashed')
-text(x=team$avg_exp_betw, y=team$avg_sqrt_betw, labels=team$pos_team, pos=2, cex=0.75)
-abline(v=mean(team$avg_exp_betw), col='red', lty='dashed')
-dev.off()
+# matrix
+mat <- team %>%
+  left_join(nflfastR::teams_colors_logos, by = c('pos_team' = 'team_abbr')) %>% 
+  ggplot(aes(x = avg_exp_betw, y = avg_sqrt_betw)) +
+  geom_image(aes(image = team_logo_wikipedia), size = 0.035, by = "width", asp = asp_ratio) +
+  scale_fill_identity(aesthetics = c("fill", "color")) +
+  labs(
+    x = TeX('Expected $\\sqrt{O-line \\ betweenness}$'),
+    y=TeX('Observed $\\sqrt{O-line \\ betweenness}$'), 
+    title='O-line Pass Protection Efficiency Matrix'
+  ) +
+  theme_classic() +
+  theme(
+    aspect.ratio = 1/asp_ratio, 
+    plot.title = element_text(hjust = 0.5)
+  ) + 
+  geom_abline(intercept = 0, slope = 1, color = 'red', linetype = 'dashed') + 
+  geom_vline(xintercept = mean(team$avg_exp_betw), color = 'red', linetype = 'dashed')
+
+# ggsave("images/pp_matrix.png", mat, height = 5, width = 7)
 
 ##### 07. Probabilities of success #####
 probs <- rolled %>% mutate(prob = pnorm(oe, mu, sig)) 
 
 probs %>% 
   filter(pos_team == 'DAL') %>% 
-  group_by(Down = down) %>% 
+  group_by(Coverage = def_coverage) %>% 
   summarize('Probability' = mean(prob)) %>% 
-  arrange(desc(Probability)) #%>% write.csv(., '../snippets/down.csv', row.names = FALSE)
+  arrange(desc(Probability)) 
 
 probs %>% 
   filter(pos_team == 'DAL') %>% 
-  group_by(Coverage = def_coverage) %>% 
+  group_by(Down = down) %>% 
   summarize('Probability' = mean(prob)) %>% 
-  arrange(desc(Probability)) #%>% write.csv(., '../snippets/defcov.csv', row.names = FALSE)
+  arrange(desc(Probability)) 
 
 probs %>% 
   filter(pos_team == 'DAL') %>% 
   group_by('Coverage type' = def_covtype) %>% 
   summarize('Probability' = mean(prob)) %>% 
-  arrange(desc(Probability)) #%>% write.csv(., '../snippets/covtype.csv', row.names = FALSE)
+  arrange(desc(Probability)) 
 
-##### 08. Code to produce data for use case #####
+##### 08. Play animation #####
+# citation: http://rstudio-pubs-static.s3.amazonaws.com/494188_154898728be3411ebab39050ca8a8dcd.html
 df$def_team <- df$desc_defteam
 df$pos_team <- df$desc_posteam
 df$exp <- predict(mod, df)
 df$oe <- sqrt(df$line_betw_mean)/df$exp
 
-example <- df %>% 
-  filter(week==1, gameId==2021091207, playId==3828) %>% 
-  mutate(prob = pnorm(oe, mu, sig)) %>% 
-  dplyr::select(week, gameId, playId, frameId, oe, prob, desc_play)
+Get.Animation <- function(week=1, game, play) {
+  example <- df %>%  
+    filter(week==week, gameId==game, playId==play) %>%
+    mutate(prob = pnorm(oe, mu, sig)) %>% 
+    dplyr::select(week, gameId, playId, frameId, oe, prob, desc_play)
+  
+  tracking_example <- fread('https://raw.githubusercontent.com/bscod27/big-man-betweenness/main/data/week1.gz')
+  games_sum <- read_csv('https://raw.githubusercontent.com/bscod27/big-man-betweenness/main/data/games.csv') 
+  plays_sum <- read_csv('https://raw.githubusercontent.com/bscod27/big-man-betweenness/main/data/plays.csv') 
+  
+  out <- tracking_example %>% 
+    inner_join(games_sum) %>% 
+    inner_join(plays_sum) %>% 
+    filter(week==week, gameId==game, playId == play) %>% 
+    left_join(example %>% dplyr::select(frameId, oe), by='frameId') %>% 
+    rename(bmb=oe) %>% 
+    mutate(bmb_color=ifelse(bmb>=1, 'black', 'orange'))
+  
+  return(out)
+}
 
-write.csv(example, '../use_case/bmb.csv', row.names = FALSE)
+# ggplot2 data
+example <- Get.Animation(game=2021091201, play=1367)
+
+# plotly data
+plotly <- Get.Animation(game=2021091207, play=3828)
+# write.csv(plotly, 'snippets/plotly_data.csv', row.names = FALSE)
+
+# ggplot2 visualization
+xmin <- 0
+xmax <- 160/3
+hash.right <- 38.35
+hash.left <- 12
+hash.width <- 3.3
+
+ymin <- 60; ymax <- 120
+df.hash <- expand.grid(x = c(0, 23.36667, 29.96667, xmax), y = (10:110))
+df.hash <- df.hash %>% filter(!(floor(y %% 5) == 0))
+df.hash <- df.hash %>% filter(y < ymax, y > ymin)
+
+animate.play <- ggplot() +
+  scale_size_manual(values = c(6, 4, 6), guide = FALSE) + 
+  scale_shape_manual(values = c(21, 16, 21), guide = FALSE) +
+  scale_fill_manual(values = c("#e31837", "#654321", "#002244"), guide = FALSE) +
+  scale_color_manual(values = c("black", "#654321", "#c60c30"), guide = FALSE) +
+  annotate("text", x = df.hash$x[df.hash$x < 55/2], 
+           y = df.hash$y[df.hash$x < 55/2], label = "_", hjust = 0, vjust = -0.2) + 
+  annotate("text", x = df.hash$x[df.hash$x > 55/2], 
+           y = df.hash$y[df.hash$x > 55/2], label = "_", hjust = 1, vjust = -0.2) + 
+  annotate("segment", x = xmin, 
+           y = seq(max(10, ymin), min(ymax, 110), by = 5), 
+           xend =  xmax, 
+           yend = seq(max(10, ymin), min(ymax, 110), by = 5)) + 
+  annotate("text", x = rep(hash.left, 11), y = seq(10, 110, by = 10), 
+           label = c("G   ", seq(10, 50, by = 10), rev(seq(10, 40, by = 10)), "   G"), 
+           angle = 270, size = 4) + 
+  annotate("text", x = rep((xmax - hash.left), 11), y = seq(10, 110, by = 10), 
+           label = c("   G", seq(10, 50, by = 10), rev(seq(10, 40, by = 10)), "G   "), 
+           angle = 90, size = 4) + 
+  annotate("segment", x = c(xmin, xmin, xmax, xmax), 
+           y = c(ymin, ymax, ymax, ymin), 
+           xend = c(xmin, xmax, xmax, xmin), 
+           yend = c(ymax, ymax, ymin, ymin), color = "black") + 
+  geom_point(data = example, aes(x = (xmax-y), y = x, size = '72x72',
+                                      fill = team, group = nflId, color = team), alpha = 0.7) +
+  geom_text(data = example, aes(x = (xmax-y), y = x, label = jerseyNumber), color = "white",
+            vjust = 0.36, size = 3.5) +
+  geom_text(data = example,  aes(x = 26.5, y=115, label = 
+                                        paste0('Big Man Betweenness: ', format(signif(bmb,digits=2),nsmall=2))),
+            color=example$bmb_color, size = 5.5) +
+  ylim(ymin, ymax) +
+  coord_fixed() +  
+  theme_nothing() + 
+  transition_time(frameId)  +
+  ease_aes('linear') + 
+  NULL
+
+animate.play
+# anim_save('gifs/ggplot2_anim.gif', animate.play, units = 'in', height=5, width=5, res=150)
