@@ -6,9 +6,9 @@ The `R` programming language was used in our analytical workflow. The exact vers
 
 ## Scripts
 The scripts employed are detailed below: 
-- `tracking.R` - takes the weekly tracking data and converts the files from `.csv >> .gz` to compress the data into a form that can be pushed to GitHub
+- `tracking.R` - pulls the weekly tracking data and converts the files from `.csv >> .gz` to compress the data into a form that can be pushed to GitHub
 - `batch_build.R` - command-line implementation that intakes the raw data, constructs frame-by-frame networks for each play, calculates network measures of interest, and creates weekly builds for downstream analysis 
-- `analysis.R` - uses the builds, wrangles them into analysis-friendly form, and produces the results found in the [notebook](https://www.kaggle.com/code/brunoscodari/big-man-betweenness-bmb)
+- `analysis.R` - takes the builds, wrangles them into analysis-friendly form, and produces the results found in the [notebook](https://www.kaggle.com/code/brunoscodari/big-man-betweenness-bmb)
 - `gifs.R` - saves down the individual images for the network GIFs
 
 ## Folders
