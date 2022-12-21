@@ -1,0 +1,1 @@
+Please note that each file contains screenshots of all of the images that compose each GIF in order. [Animated GIF Maker](https://ezgif.com/maker) software was used to create each GIF manually using the captured images.
