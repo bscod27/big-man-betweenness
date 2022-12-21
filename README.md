@@ -5,7 +5,7 @@ This repository contains all working material pertinent to the Big Man Betweenne
 The `R` programming language was used in our analytical workflow. The exact version and packages used are detailed in `requirements.txt`. 
 
 ## Reproducibility
-Cloning the repository and navigating the the root of the working directory is recommended for anybody who seeks to reproduce this work. To do so, please run the following Bash commands: 
+Cloning the repository and navigating to the root of the working directory is recommended for anybody who seeks to reproduce this work. To do so, please run the following Bash commands: 
 ```
 git clone https://github.com/bscod27/big-man-betweenness.git
 cd big-man-betweenness.git
