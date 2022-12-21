@@ -15,7 +15,7 @@ cd big-man-betweenness.git
 The following scripts were used in this project and executed in chronological order: 
 1. `tracking.R` - converts the weekly tracking data from `.csv >> .gz` to compress the data into a form that can be pushed to GitHub; note that this script assumes the tracking data has been downloaded locally as `.csv` files
 2. `batch_build.R` - command-line implementation that intakes the raw data, constructs frame-by-frame networks for each play, calculates network measures of interest, and creates weekly builds for downstream analysis 
-3. `analysis.R` - takes the builds, wrangles them into analysis-friendly form, and produces the results found in the [notebook](https://www.kaggle.com/code/brunoscodari/big-man-betweenness-bmb)
+3. `analysis.R` - takes the builds, wrangles them into analysis-friendly form, and produces the [notebook](https://www.kaggle.com/code/brunoscodari/big-man-betweenness-bmb) results
 4. `gifs.R` - saves down the individual images for the network GIFs
 
 ## Folders
