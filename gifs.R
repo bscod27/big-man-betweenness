@@ -170,4 +170,3 @@ for (week in 1:length(unique(df$week))) { # unique weeks
     }
   break
 }
-
