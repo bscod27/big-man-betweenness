@@ -237,7 +237,10 @@ mat <- team %>%
     plot.title = element_text(hjust = 0.5)
   ) + 
   geom_abline(intercept = 0, slope = 1, color = 'red', linetype = 'dashed') + 
-  geom_vline(xintercept = mean(team$avg_exp_betw), color = 'red', linetype = 'dashed')
+  geom_vline(xintercept = mean(team$avg_exp_betw), color = 'red', linetype = 'dashed') + 
+  annotate("text", x=5, y=1.045, label= '"Tier 1"') +
+  annotate("text", x=16.5, y=1.01, label= '"Tier 2"') +
+  annotate("text", x=27.5, y=0.96, label= '"Tier 3"')
 
 ggsave("./images/pp_matrix.png", mat, height = 5, width = 7)
 
