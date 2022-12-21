@@ -88,9 +88,9 @@ rolled <- df %>%
     line_betw, everything()
     )
 
-# rolled %>%
-#   dplyr::select(week, gameId, playId, pos_team, def_team, down, yardstogo, contains('def'), line_betw, pressure) %>%
-#   write.csv(., 'snippets/rolled.csv', row.names = FALSE)
+rolled %>%
+  dplyr::select(week, gameId, playId, pos_team, def_team, down, yardstogo, contains('def'), line_betw, pressure) %>%
+  write.csv(., './snippets/rolled.csv', row.names = FALSE)
 
 ##### 04. Create BMB metric  #####
 summary(mod <- lmer(
@@ -100,7 +100,7 @@ rolled$exp <- predict(mod, rolled)
 rolled$oe <- sqrt(rolled$line_betw)/rolled$exp
 
 
-# png('images/sampling_distribution.png', units='in', width=11, height=5, res=700)
+png('./images/sampling_distribution.png', units='in', width=11, height=5, res=700)
 
 par(mfrow=c(1, 2))
 plot(
@@ -134,7 +134,7 @@ legend(
 abline(h=1, col='grey')
 abline(h=0, col='grey')
 
-# dev.off()
+dev.off()
 
 ##### 05. Statistical inference #####
 Get.Coefs <- function(model) {
@@ -218,7 +218,7 @@ tr <- sorted %>%
   ) +
   geom_hline(yintercept = 1, color='red', linetype = 'dashed')
   
-# ggsave("images/team_ratings.png", tr, height = 5, width = 7)
+ggsave("./images/team_ratings.png", tr, height = 5, width = 7)
 
 # matrix
 mat <- team %>%
@@ -239,7 +239,7 @@ mat <- team %>%
   geom_abline(intercept = 0, slope = 1, color = 'red', linetype = 'dashed') + 
   geom_vline(xintercept = mean(team$avg_exp_betw), color = 'red', linetype = 'dashed')
 
-# ggsave("images/pp_matrix.png", mat, height = 5, width = 7)
+ggsave("./images/pp_matrix.png", mat, height = 5, width = 7)
 
 ##### 07. Probabilities of success #####
 probs <- rolled %>% mutate(prob = pnorm(oe, mu, sig)) 
@@ -295,7 +295,7 @@ example <- Get.Animation(game=2021091201, play=1367)
 
 # plotly data
 plotly <- Get.Animation(game=2021091207, play=3828)
-# write.csv(plotly, 'snippets/plotly_data.csv', row.names = FALSE)
+write.csv(plotly, './snippets/plotly_data.csv', row.names = FALSE)
 
 # ggplot2 visualization
 xmin <- 0
@@ -346,5 +346,4 @@ animate.play <- ggplot() +
   ease_aes('linear') + 
   NULL
 
-animate.play
-# anim_save('gifs/ggplot2_anim.gif', animate.play, units = 'in', height=5, width=5, res=150)
+anim_save('./gifs/ggplot2_anim.gif', animate.play, units = 'in', height=5, width=5, res=150)
