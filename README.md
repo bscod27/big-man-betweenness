@@ -3,7 +3,7 @@ This repository contains all working material pertinent to the Big Man Betweenne
 
 ## Reproducibility
 For those seeking to reproduce our work, we recommend the following: 
-- Download/install the `R` version and packages outlined in `requirements.txt`
+- Download/install the specific version of `R` and required packages outlined in `requirements.txt`
 - Clone a remote copy of the repository to your local machine and navigate to the root directory:
 ```
 git clone https://github.com/bscod27/big-man-betweenness.git
