@@ -184,4 +184,4 @@ main <- df_line %>%
   left_join(plays, by = c('gameId', 'playId')) %>%
   left_join(games, by = c('week', 'gameId'))
 
-write.csv(main, paste0('builds/build',week,'.csv'))
+write.csv(main, paste0('./builds/build',week,'.csv'))
