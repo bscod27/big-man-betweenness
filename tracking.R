@@ -1,4 +1,4 @@
-setwd('~/01. Dartmouth/04. Coursework/05. Fall 2022/03. Big Data Bowl/03. Linked Git/data') 
+setwd('./data') # relative path
 
 library(tidyverse)
 library(data.table)
