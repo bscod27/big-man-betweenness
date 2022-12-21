@@ -1,15 +1,16 @@
 # big-man-betweenness
 This repository contains all working material pertinent to the Big Man Betweenness [notebook](https://www.kaggle.com/code/brunoscodari/big-man-betweenness-bmb), which was submitted to the NFL Big Data Bowl 2023 Kaggle competition. 
 
-## Environment
-The `R` programming language was used in our analytical workflow. The exact version and packages used are detailed in `requirements.txt`. 
-
 ## Reproducibility
-Cloning the repository and navigating to the root of the working directory is recommended for anybody who seeks to reproduce this work. To do so, please run the following Bash commands: 
+For those seeking to reproduce our work, we recommend the following: 
+- Make sure you have the `R` programming language installed, with the specific version and packages outlined in `requirements.txt`
+- Clone a remote copy of the repository to your local machine and navigate to the root directory:
 ```
 git clone https://github.com/bscod27/big-man-betweenness.git
 cd big-man-betweenness.git
 ``` 
+- Execute the scripts detailed below
+
 ## Scripts
 The following scripts were used in this project and executed in chronological order: 
 1. `tracking.R` - converts the weekly tracking data from `.csv >> .gz` to compress the data into a form that can be pushed to GitHub; note that this script assumes the tracking data has been downloaded locally as `.csv` files
