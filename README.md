@@ -4,6 +4,15 @@ This repository contains all working material pertinent to the Big Man Betweenne
 ## Environment
 The `R` programming language was used in our analytical workflow. The exact version and packages used are detailed in `requirements.txt`. 
 
+## Working Directory
+To clone the working directory, please run the following Bash commands: 
+```
+https://github.com/bscod27/big-man-betweenness.git
+git clone ssh://john@example.com/path/to/my-project.git 
+cd my-project
+``` 
+
+
 ## Scripts
 The scripts employed are detailed below: 
 - `tracking.R` - pulls the weekly tracking data and converts the files from `.csv >> .gz` to compress the data into a form that can be pushed to GitHub
