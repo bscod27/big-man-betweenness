@@ -1,1 +1,1 @@
-Please note that each file contains screenshots of all of the images that compose each GIF in order. [Animated GIF Maker](https://ezgif.com/maker) software was used to create each GIF manually using the captured images.
+Please note the `betw` and `pos` folders contain contain screenshots of the images that compose each of the network GIFs. [Animated GIF Maker](https://ezgif.com/maker) software was used to create each GIF manually using the captured images.
