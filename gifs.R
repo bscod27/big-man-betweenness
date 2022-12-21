@@ -6,7 +6,7 @@ library(latex2exp)
 
 euclidean_dist <- function(x, y) {sqrt(sum((x - y)^2))}
 
-##### 00. Read in the data ##### >> rejigger to pull from github
+##### 00. Read in the data #####
 data_str <- 'https://raw.githubusercontent.com/bscod27/big-man-betweenness/main/data/'
 games <- read.csv(paste0(data_str,'games.csv'))
 plays <- read.csv(paste0(data_str,'plays.csv'))
@@ -145,7 +145,7 @@ for (week in 1:length(unique(df$week))) { # unique weeks
           V(g)$label.cex = .5
           
           # first
-          png(paste('../gifs/pos/gif_',frame,'.png'), units='in', height=5, width=5,res=300)
+          png(paste('./gifs/pos/gif_',frame,'.png'), units='in', height=5, width=5,res=300)
           plot(g, layout=l, vertex.label=V(g)$pos)
           dev.off()
           
@@ -153,7 +153,7 @@ for (week in 1:length(unique(df$week))) { # unique weeks
           l_idx <- which(names(V(g)) %in% line_slice$player)
           betw <- betweenness(g, normalized = T)
           V(g)$betw <- betw
-          png(paste('../gifs/betw/gif_',frame,'.png'), units='in', height=5, width=5,res=300)
+          png(paste('./gifs/betw/gif_',frame,'.png'), units='in', height=5, width=5,res=300)
           plot(g, layout=l, vertex.label=V(g)$pos)
           text(
             0, 1.25, TeX(
@@ -167,7 +167,6 @@ for (week in 1:length(unique(df$week))) { # unique weeks
     }
     game_count <- game_count + 1
     break
-  
     }
   break
 }
