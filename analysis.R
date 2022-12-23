@@ -90,7 +90,7 @@ rolled <- df %>%
 
 rolled %>%
   dplyr::select(week, gameId, playId, pos_team, def_team, down, yardstogo, contains('def'), line_betw, pressure) %>%
-  write.csv(., './snippets/rolled.csv', row.names = FALSE)
+  write.csv(., './data/rolled.csv', row.names = FALSE)
 
 ##### 04. Create BMB metric  #####
 summary(mod <- lmer(
