@@ -88,9 +88,9 @@ rolled <- df %>%
     line_betw, everything()
     )
 
-rolled %>%
-  dplyr::select(week, gameId, playId, pos_team, def_team, down, yardstogo, contains('def'), line_betw, pressure) %>%
-  write.csv(., './snippets/rolled.csv', row.names = FALSE)
+# rolled %>%
+#   dplyr::select(week, gameId, playId, pos_team, def_team, down, yardstogo, contains('def'), line_betw, pressure) %>%
+#   write.csv(., 'snippets/rolled.csv', row.names = FALSE)
 
 ##### 04. Create BMB metric  #####
 summary(mod <- lmer(
@@ -100,7 +100,7 @@ rolled$exp <- predict(mod, rolled)
 rolled$oe <- sqrt(rolled$line_betw)/rolled$exp
 
 
-png('./images/sampling_distribution.png', units='in', width=11, height=5, res=700)
+# png('images/sampling_distribution.png', units='in', width=11, height=5, res=700)
 
 par(mfrow=c(1, 2))
 plot(
@@ -134,7 +134,7 @@ legend(
 abline(h=1, col='grey')
 abline(h=0, col='grey')
 
-dev.off()
+# dev.off()
 
 ##### 05. Statistical inference #####
 Get.Coefs <- function(model) {
@@ -216,9 +216,14 @@ tr <- sorted %>%
     aspect.ratio = 1/asp_ratio,
     plot.title = element_text(hjust = 0.5)
   ) +
-  geom_hline(yintercept = 1, color='red', linetype = 'dashed')
+  geom_hline(yintercept = 1, color='red', linetype = 'dashed') +
+  geom_hline(yintercept = 1.02, color='grey', linetype = 'dashed') +
+  geom_hline(yintercept = 0.98, color='grey', linetype = 'dashed') + 
+  annotate("text", x=5, y=1.045, label= '"Tier 1"') +
+  annotate("text", x=16.5, y=1.01, label= '"Tier 2"') +
+  annotate("text", x=27.5, y=0.96, label= '"Tier 3"')
   
-ggsave("./images/team_ratings.png", tr, height = 5, width = 7)
+# ggsave("./images/team_ratings.png", tr, height = 5, width = 7)
 
 # matrix
 mat <- team %>%
@@ -237,12 +242,9 @@ mat <- team %>%
     plot.title = element_text(hjust = 0.5)
   ) + 
   geom_abline(intercept = 0, slope = 1, color = 'red', linetype = 'dashed') + 
-  geom_vline(xintercept = mean(team$avg_exp_betw), color = 'red', linetype = 'dashed') + 
-  annotate("text", x=5, y=1.045, label= '"Tier 1"') +
-  annotate("text", x=16.5, y=1.01, label= '"Tier 2"') +
-  annotate("text", x=27.5, y=0.96, label= '"Tier 3"')
+  geom_vline(xintercept = mean(team$avg_exp_betw), color = 'red', linetype = 'dashed')
 
-ggsave("./images/pp_matrix.png", mat, height = 5, width = 7)
+# ggsave("images/pp_matrix.png", mat, height = 5, width = 7)
 
 ##### 07. Probabilities of success #####
 probs <- rolled %>% mutate(prob = pnorm(oe, mu, sig)) 
@@ -288,17 +290,21 @@ Get.Animation <- function(week=1, game, play) {
     filter(week==week, gameId==game, playId == play) %>% 
     left_join(example %>% dplyr::select(frameId, oe), by='frameId') %>% 
     rename(bmb=oe) %>% 
-    mutate(bmb_color=ifelse(bmb>=1, 'black', 'orange'))
+    mutate(bmb_color=ifelse(bmb>=1, 'black', 'brown'))
   
   return(out)
 }
 
 # ggplot2 data
-example <- Get.Animation(game=2021091201, play=1367)
+example <- Get.Animation(game=2021091201, play=1367) 
 
 # plotly data
-plotly <- Get.Animation(game=2021091207, play=3828)
-write.csv(plotly, './snippets/plotly_data.csv', row.names = FALSE)
+plotly_stats <- df %>%  
+  filter(week==1, gameId==2021091207, playId==3828) %>%
+  mutate(prob = pnorm(oe, mu, sig)) %>% 
+  dplyr::select(week, gameId, playId, frameId, oe, prob, desc_play) 
+
+# write.csv(plotly_stats, './gifs/plotly_stats.csv', row.names=FALSE)
 
 # ggplot2 visualization
 xmin <- 0
@@ -313,10 +319,10 @@ df.hash <- df.hash %>% filter(!(floor(y %% 5) == 0))
 df.hash <- df.hash %>% filter(y < ymax, y > ymin)
 
 animate.play <- ggplot() +
-  scale_size_manual(values = c(6, 4, 6), guide = FALSE) + 
+  scale_size_manual(values = c(6, 4, 6), guide = FALSE) +
   scale_shape_manual(values = c(21, 16, 21), guide = FALSE) +
-  scale_fill_manual(values = c("#e31837", "#654321", "#002244"), guide = FALSE) +
-  scale_color_manual(values = c("black", "#654321", "#c60c30"), guide = FALSE) +
+  scale_fill_manual(values = c('#00338D', '#654321', '#00000'), guide = FALSE) +
+  scale_color_manual(values = c('#00338D', '#654321', '#00000'), guide = FALSE) +
   annotate("text", x = df.hash$x[df.hash$x < 55/2], 
            y = df.hash$y[df.hash$x < 55/2], label = "_", hjust = 0, vjust = -0.2) + 
   annotate("text", x = df.hash$x[df.hash$x > 55/2], 
@@ -340,7 +346,7 @@ animate.play <- ggplot() +
   geom_text(data = example, aes(x = (xmax-y), y = x, label = jerseyNumber), color = "white",
             vjust = 0.36, size = 3.5) +
   geom_text(data = example,  aes(x = 26.5, y=115, label = 
-                                        paste0('Big Man Betweenness: ', format(signif(bmb,digits=2),nsmall=2))),
+                                        paste0('Big Man Betweenness: ',format(signif(bmb,digits=2),nsmall=2))),
             color=example$bmb_color, size = 5.5) +
   ylim(ymin, ymax) +
   coord_fixed() +  
@@ -349,4 +355,5 @@ animate.play <- ggplot() +
   ease_aes('linear') + 
   NULL
 
-anim_save('./gifs/ggplot2_anim.gif', animate.play, units = 'in', height=5, width=5, res=150)
+animate.play
+# anim_save('./gifs/ggplot2_anim.gif', animate.play, units = 'in', height=5, width=5, res=150)
