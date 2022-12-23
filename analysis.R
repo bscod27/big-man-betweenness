@@ -318,8 +318,8 @@ df.hash <- df.hash %>% filter(y < ymax, y > ymin)
 animate.play <- ggplot() +
   scale_size_manual(values = c(6, 4, 6), guide = FALSE) +
   scale_shape_manual(values = c(21, 16, 21), guide = FALSE) +
-  scale_fill_manual(values = c('#00338D', '#654321', '#00000'), guide = FALSE) +
-  scale_color_manual(values = c('#00338D', '#654321', '#00000'), guide = FALSE) +
+  scale_fill_manual(values = c('#00338D', '#654321', '#FFB612'), guide = FALSE) +
+  scale_color_manual(values = c('#00338D', '#654321', '#FFB612'), guide = FALSE) +
   annotate("text", x = df.hash$x[df.hash$x < 55/2], 
            y = df.hash$y[df.hash$x < 55/2], label = "_", hjust = 0, vjust = -0.2) + 
   annotate("text", x = df.hash$x[df.hash$x > 55/2], 
