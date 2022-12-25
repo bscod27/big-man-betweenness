@@ -3,13 +3,15 @@ This repository contains all working material pertinent to the Big Man Betweenne
 
 ## Reproducibility
 For those seeking to reproduce our work, we recommend the following: 
-- Download/install the specific version of `R` and required packages outlined in `requirements.txt`
+- Install the specific version of `R` and required packages outlined in `requirements.txt`
 - Clone a remote copy of the repository to your local machine and navigate to the root directory:
+
 ```
 git clone https://github.com/bscod27/big-man-betweenness.git
 cd big-man-betweenness.git
 ``` 
-- Pull the competition [data](https://www.kaggle.com/competitions/nfl-big-data-bowl-2023/data) and store in the `data` folder
+
+- Download, unzip, and store the competition [files](https://www.kaggle.com/competitions/nfl-big-data-bowl-2023/data) in the `data` folder
 - Execute the scripts detailed below
 
 ## Scripts
