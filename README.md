@@ -11,6 +11,8 @@ cd big-man-betweenness.git
 ``` 
 - Execute the scripts detailed below
 
+The data from the competition [website](https://www.kaggle.com/competitions/nfl-big-data-bowl-2023/data) should also be pulled locally and stored in the `data` folder, as the competition rules prohibit making the data publically accessible in this repository.
+
 ## Scripts
 The following scripts were used in this project and executed in chronological order: 
 1. `batch_build.R` - command-line implementation that intakes the raw data, constructs frame-by-frame networks for each play, calculates network measures of interest, and creates weekly builds for downstream analysis 
