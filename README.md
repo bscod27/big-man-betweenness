@@ -9,9 +9,8 @@ For those seeking to reproduce our work, we recommend the following:
 git clone https://github.com/bscod27/big-man-betweenness.git
 cd big-man-betweenness.git
 ``` 
+- Pull the competition [data](https://www.kaggle.com/competitions/nfl-big-data-bowl-2023/data) and store in the `data` folder
 - Execute the scripts detailed below
-
-The data from the competition [website](https://www.kaggle.com/competitions/nfl-big-data-bowl-2023/data) should be pulled locally and stored in the `data` folder, as the competition [rules](https://www.kaggle.com/competitions/nfl-big-data-bowl-2023/rules) prohibit public redistribution of the data.
 
 ## Scripts
 The following scripts were used in this project and executed in chronological order: 
@@ -21,7 +20,7 @@ The following scripts were used in this project and executed in chronological or
 
 ## Folders
 Data, visuals, and other pertinent material are partitioned inside the following folders:
-- `data` - placeholder folder for data supplied by Kaggle (not shown due to legal stipulations)
+- `data` - placeholder folder for the competition data
 - `builds` - contains the wrangled datasets produced by `builds.R` and one intermediate dataset produced by `analysis.R`
 - `images` - contains all images produced produced by `analysis.R` 
 - `gifs` - contains all GIFs produced by `gifs.R` and `analysis.R`
