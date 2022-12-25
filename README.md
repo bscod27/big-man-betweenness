@@ -13,14 +13,13 @@ cd big-man-betweenness.git
 
 ## Scripts
 The following scripts were used in this project and executed in chronological order: 
-1. `tracking.R` - converts the weekly tracking data from `.csv >> .gz` to compress the data into a form that can be pushed to GitHub; note that this script assumes the tracking data has been downloaded locally as `.csv` files
-2. `batch_build.R` - command-line implementation that intakes the raw data, constructs frame-by-frame networks for each play, calculates network measures of interest, and creates weekly builds for downstream analysis 
-3. `analysis.R` - takes the builds, wrangles them into analysis-friendly form, and produces the [notebook](https://www.kaggle.com/code/brunoscodari/big-man-betweenness-bmb) results
-4. `gifs.R` - saves down the individual images for the network GIFs
+1. `batch_build.R` - command-line implementation that intakes the raw data, constructs frame-by-frame networks for each play, calculates network measures of interest, and creates weekly builds for downstream analysis 
+2. `analysis.R` - takes the builds, wrangles them into analysis-friendly form, and produces the [notebook](https://www.kaggle.com/code/brunoscodari/big-man-betweenness-bmb) results
+3. `gifs.R` - saves down the individual images for the network GIFs
 
 ## Folders
 Data, visuals, and other pertinent material are partitioned inside the following folders:
-- `data` - contains the raw data as supplied by Kaggle; weekly tracking data has been converted to `.gz` files by `tracking.R`
+- `data` - placeholder folder for data supplied by Kaggle (not shown due to legal stipulations)
 - `builds` - contains the engineered data produced by `builds.R`
 - `images` - contains all images produced produced by `analysis.R` 
 - `gifs` - contains all GIFs produced by `gifs.R` and `analysis.R`
