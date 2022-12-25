@@ -11,7 +11,7 @@ cd big-man-betweenness.git
 ``` 
 - Execute the scripts detailed below
 
-The data from the competition [website](https://www.kaggle.com/competitions/nfl-big-data-bowl-2023/data) should also be pulled locally and stored in the `data` folder, as the competition rules prohibit making the data publicly accessible in this repository.
+The data from the competition [website](https://www.kaggle.com/competitions/nfl-big-data-bowl-2023/data) should be pulled locally and stored in the `data` folder, as the competition [rules](https://www.kaggle.com/competitions/nfl-big-data-bowl-2023/rules) prohibits public redistribution of the data.
 
 ## Scripts
 The following scripts were used in this project and executed in chronological order: 
