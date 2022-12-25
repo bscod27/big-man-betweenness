@@ -11,7 +11,6 @@ week <- args[1]
 euclidean_dist <- function(x, y) {sqrt(sum((x - y)^2))}
 
 ##### 00. Read in the data #####
-data_str <- 'https://raw.githubusercontent.com/bscod27/big-man-betweenness/main/data/'
 games <- read.csv('games.csv')
 plays <- read.csv('plays.csv')
 players <- read.csv('players.csv')
@@ -172,7 +171,6 @@ for (game in unique(sliced$gameId)) {
           preds
         )
         df_line <- rbind(df_line, append_df)
-        
       }
     }
   }
