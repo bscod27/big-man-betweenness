@@ -22,6 +22,6 @@ The following scripts were used in this project and executed in chronological or
 ## Folders
 Data, visuals, and other pertinent material are partitioned inside the following folders:
 - `data` - placeholder folder for data supplied by Kaggle (not shown due to legal stipulations)
-- `builds` - contains the engineered data produced by `builds.R`
+- `builds` - contains the wrangled datasets produced by `builds.R` and one intermediate dataset produced by `analysis.R`
 - `images` - contains all images produced produced by `analysis.R` 
 - `gifs` - contains all GIFs produced by `gifs.R` and `analysis.R`
