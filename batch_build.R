@@ -12,14 +12,16 @@ euclidean_dist <- function(x, y) {sqrt(sum((x - y)^2))}
 
 ##### 00. Read in the data #####
 data_str <- 'https://raw.githubusercontent.com/bscod27/big-man-betweenness/main/data/'
-games <- read.csv(paste0(data_str,'games.csv'))
-plays <- read.csv(paste0(data_str,'plays.csv'))
-players <- read.csv(paste0(data_str,'players.csv'))
-pffScoutingData <- read.csv(paste0(data_str,'pffScoutingData.csv'))
+games <- read.csv('games.csv')
+plays <- read.csv('plays.csv')
+players <- read.csv('players.csv')
+pffScoutingData <- read.csv('pffScoutingData.csv')
 
 tracking <- data.frame()
-for (i in 1:8) {
-  tracking <- rbind(tracking, fread(paste0(data_str, 'week', i, '.gz')))
+for (i in list.files(pattern='week.*\\.csv')) {
+  df <- read.csv(i)
+  df$week <- as.numeric(substr(i, 5, 5))
+  tracking <- rbind(tracking, df)
 }
 
 ##### 01. Join all data into main frame #####
