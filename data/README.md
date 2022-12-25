@@ -13,4 +13,4 @@ This is a placeholder folder for the competition [data](https://www.kaggle.com/c
 - `week7.csv`
 - `week8.csv`
 
-We have not stored the above files in this folder as the competition [rules](https://www.kaggle.com/competitions/nfl-big-data-bowl-2023/rules) prohibit public redistribution of the data.
+We have not stored the above files in this folder, as the competition [rules](https://www.kaggle.com/competitions/nfl-big-data-bowl-2023/rules) prohibit public redistribution of the data.
