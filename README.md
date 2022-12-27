@@ -26,4 +26,4 @@ Data, visuals, and other pertinent material are partitioned inside the following
 - `builds` - contains the wrangled "builds" (produced by `builds.R`) and `rolled.csv` (produced by `analysis.R`), which is displayed in the report 
 - `images` - contains the images (produced by `analysis.R`) that are shown in the report
 - `gifs` - contains the animations (produced by `gifs.R`, `analysis.R`, and `plotly_viz.py`) that are shown in the report
-  - Note: `Python` documentation for `plotly_viz.py` can be found in `gifs`
+  - Note: documentation for `plotly_viz.py` can be found in `gifs`
