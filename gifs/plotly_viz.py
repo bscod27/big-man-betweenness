@@ -6,8 +6,8 @@ import plotly.express as px
 import plotly.graph_objects as go
 
 # load data
-bmb = pd.read_csv('../gifs/plotly_stats.csv')
-week1 = pd.read_csv('../gifs/plotly_tracking.csv')
+bmb = pd.read_csv('plotly_stats.csv')
+week1 = pd.read_csv('plotly_tracking.csv')
 p, g = 3828, 2021091207
 df = week1[(week1.playId==p)]
 df = df[(df.gameId==g)]
@@ -87,4 +87,4 @@ for button in fig.layout.updatemenus[0].buttons:
     button['args'][1]['frame']['redraw'] = True
 
 # write html
-fig.write_html('plotly_html.html')
+fig.write_html('./plotly_html.html')
