@@ -14,7 +14,7 @@ cd big-man-betweenness.git
 - Download, unzip, and store the competition [files](https://www.kaggle.com/competitions/nfl-big-data-bowl-2023/data) in the `data` folder
 - Execute the scripts detailed below
 
-`Python` was used to generate one plot in the `gifs` folder. Please see the documentation within that folder for details. 
+`Python` was used to generate one plot in the `gifs` folder. Please navigate to that folder for details. 
 
 ## Scripts
 The following scripts were used in this project and executed in chronological order: 
