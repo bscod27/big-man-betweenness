@@ -1,13 +1,14 @@
-import numpy as np
-import pandas as pd
-import matplotlib.pyplot as plt
 import plotly
 import plotly.express as px
 import plotly.graph_objects as go
+import pandas as pd
+import matplotlib.pyplot as plt
 
 # load data
-bmb = pd.read_csv('plotly_stats.csv')
-week1 = pd.read_csv('plotly_tracking.csv')
+string = 'https://raw.githubusercontent.com/bscod27/big-man-betweenness/main/gifs/'
+bmb = pd.read_csv(string + 'plotly_stats.csv')
+week1 = pd.read_csv(string + 'plotly_tracking.csv')
+
 p, g = 3828, 2021091207
 df = week1[(week1.playId==p)]
 df = df[(df.gameId==g)]
