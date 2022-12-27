@@ -14,8 +14,6 @@ cd big-man-betweenness.git
 - Download, unzip, and store the competition [files](https://www.kaggle.com/competitions/nfl-big-data-bowl-2023/data) in the `data` folder
 - Execute the scripts detailed below
 
-`Python` was used to generate one plot in the `gifs` folder. Please navigate to that folder for details. 
-
 ## Scripts
 The following scripts were used in this project and executed in chronological order: 
 1. `batch_build.R` - command-line implementation that intakes the raw data, constructs frame-by-frame networks for each play, calculates network measures of interest, and creates weekly builds for downstream analysis 
@@ -25,6 +23,7 @@ The following scripts were used in this project and executed in chronological or
 ## Folders
 Data, visuals, and other pertinent material are partitioned inside the following folders:
 - `data` - placeholder folder for the competition data
-- `builds` - contains the wrangled datasets produced by `builds.R` and one intermediate dataset produced by `analysis.R`
-- `images` - contains all images produced produced by `analysis.R` 
-- `gifs` - contains all GIFs produced by `gifs.R` and `analysis.R`
+- `builds` - contains the wrangled "builds" (produced by `builds.R`) and `rolled.csv` (produced by `analysis.R`), which is displayed in the report 
+- `images` - contains the images (produced by `analysis.R`) that are shown in the report
+- `gifs` - contains the animations (produced by `gifs.R`, `analysis.R`, and `plotly_viz.py`) that are shown in the report
+  - Note: `Python` documentation for `plotly_viz.py` can be found in `gifs`; we have not included it here as all information in the report can be generated using the `R` analytic workflow
