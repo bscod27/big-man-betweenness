@@ -20,6 +20,8 @@ The following scripts were used in this project and executed in chronological or
 2. `analysis.R` - wrangles the builds into analysis-friendly form and produces the results
 3. `gifs.R` - creates the `igraph` network animations
 
+We use relative path notation in our scripts, as we assume the user sets their working directory to the root of the current folder structure.
+
 ## Folders
 Data, visuals, and other pertinent material are partitioned inside the following folders:
 - `data` - placeholder folder for the competition data, wrangled datasets, and images used to construct animations
