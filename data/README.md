@@ -1,6 +1,6 @@
 # Data
 This is a placeholder folder for all project data, including the following: 
-- [Competition Data](https://www.kaggle.com/competitions/nfl-big-data-bowl-2023/data) (must pull and store locally)
+- [Competition data](https://www.kaggle.com/competitions/nfl-big-data-bowl-2023/data) (must pull and store locally)
   - `games.csv`
   - `pffScoutingData.csv`
   - `players.csv`
