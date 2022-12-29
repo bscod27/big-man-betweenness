@@ -26,4 +26,4 @@ We use relative path notation in our scripts, as we assume the user sets their w
 Data, visuals, and other pertinent material are partitioned inside the following folders:
 - `data` - placeholder folder for the competition data, wrangled datasets, and images used to construct animations
 - `images` - contains all static images 
-- `gifs` - contains all animations; also contains the `Python` documentation for the supplementary `plotly` animation
+- `gifs` - contains all animations; also contains the `Python` documentation for the `plotly` animation
