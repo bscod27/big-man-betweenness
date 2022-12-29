@@ -16,7 +16,7 @@ cd big-man-betweenness.git
 
 ## Scripts
 The following scripts were used in this project and executed in chronological order: 
-1. `batch_build.R` - takes the raw data, constructs frame-by-frame networks for each play, calculates network measures of interest, and creates weekly "builds" for downstream analysis; note that this script has been implemented to intake a command-line argument, such that parallel computation can be achieved using computing clusters if available (each week takes ~1 day to run)
+1. `batch_build.R` - takes the raw data, constructs frame-by-frame networks for each play, calculates network measures of interest, and creates weekly "builds" for downstream analysis; note that this script has been programmed to be fed a command line argument specifying the week/batch of interest, such that parallel computation can be achieved (each week/batch is computationally expensive)
 2. `analysis.R` - wrangles the builds into analysis-friendly form and produces the results
 3. `gifs.R` - creates the `igraph` network animations
 
