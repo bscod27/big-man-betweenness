@@ -5,9 +5,8 @@ import pandas as pd
 import matplotlib.pyplot as plt
 
 # load data
-string = 'https://raw.githubusercontent.com/bscod27/big-man-betweenness/main/gifs/'
-bmb = pd.read_csv(string + 'plotly_stats.csv')
-week1 = pd.read_csv(string + 'plotly_tracking.csv')
+bmb = pd.read_csv('data/plotly_stats.csv')
+week1 = pd.read_csv('data/plotly_tracking.csv')
 
 p, g = 3828, 2021091207
 df = week1[(week1.playId==p)]
@@ -88,4 +87,4 @@ for button in fig.layout.updatemenus[0].buttons:
     button['args'][1]['frame']['redraw'] = True
 
 # write html
-fig.write_html('./plotly_html.html')
+fig.write_html('gifs/plotly_html.html')
