@@ -151,7 +151,7 @@ for (week in 1:length(unique(df$week))) { # unique weeks
           
           # first
           png(paste0('data/pos/image_',ifelse(str_length(frame)==1, paste0('0',frame), frame),'.png'), units='in', height=5, width=5,res=300)
-          plot(g, layout=l, vertex.label=V(g)$pos)
+          plot(g, layout=l, vertex.label=V(g)$pos, vertex.frame.color=NA)
           dev.off()
           
           # second
@@ -159,7 +159,7 @@ for (week in 1:length(unique(df$week))) { # unique weeks
           betw <- betweenness(g, normalized = T)
           V(g)$betw <- betw
           png(paste0('data/betw/image_',ifelse(str_length(frame)==1, paste0('0',frame), frame),'.png'), units='in', height=5, width=5,res=300)
-          plot(g, layout=l, vertex.label=V(g)$pos)
+          plot(g, layout=l, vertex.label=V(g)$pos, vertex.frame.color=NA)
           text(
             0, 1.25, TeX(
             paste('$\\sqrt{O-line \\ betweenness} = $',format(signif(mean(sqrt(betw[l_idx])),digits=10), nsmall=10))
@@ -180,10 +180,10 @@ for (week in 1:length(unique(df$week))) { # unique weeks
 create_animation <- function(arg) {
   list.files(path = paste0('data/', arg), pattern = '.png', full.names = TRUE) %>% 
     image_read() %>% 
-    image_crop(., '1100x1100+265+150') %>% 
+    image_crop(., '2100x2000+300+200') %>%
     image_join() %>% 
     image_animate(fps = 4) %>% 
-    image_write(paste0('gifs/',arg,'_anim.gif'), density = 300)
+    image_write(paste0('gifs/',arg,'_anim.gif'))
 }
 
 create_animation('pos')
