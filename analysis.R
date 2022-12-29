@@ -1,5 +1,6 @@
+setwd('~/01. Dartmouth/04. Coursework/05. Fall 2022/03. Big Data Bowl/04. Linked Git/')
+
 library(tidyverse)
-library(data.table)
 library(lme4)
 library(sfsmisc)
 library(latex2exp)
@@ -11,10 +12,9 @@ library(cowplot)
 library(teamcolors) 
 
 ##### 01. Data load #####
-data_str <- 'https://raw.githubusercontent.com/bscod27/big-man-betweenness/main/builds/'
 main <- data.frame()
 for (i in 1:8) {
-  main <- rbind(main, fread(paste0(data_str, 'build', i, '.csv')))
+  main <- rbind(main, read.csv(paste0('data/build', i, '.csv')))
 }
 
 ##### 02. Data wrangling #####
@@ -88,9 +88,9 @@ rolled <- df %>%
     line_betw, everything()
     )
 
-rolled %>%
-  dplyr::select(week, gameId, playId, pos_team, def_team, down, yardstogo, contains('def'), line_betw, pressure) %>%
-  write.csv(., './builds/rolled.csv', row.names = FALSE)
+# rolled %>%
+#   dplyr::select(week, gameId, playId, pos_team, def_team, down, yardstogo, contains('def'), line_betw, pressure) %>%
+#   write.csv(., 'data/rolled.csv', row.names = FALSE)
 
 ##### 04. Create BMB metric  #####
 summary(mod <- lmer(
@@ -99,7 +99,9 @@ summary(mod <- lmer(
 rolled$exp <- predict(mod, rolled)
 rolled$oe <- sqrt(rolled$line_betw)/rolled$exp
 
-png('./images/sampling_distribution.png', units='in', width=11, height=5, res=700)
+
+# png('images/sampling_distribution.png', units='in', width=11, height=5, res=700)
+
 par(mfrow=c(1, 2))
 plot(
   density(rolled$oe, bw=.065), 
@@ -131,7 +133,8 @@ legend(
 )
 abline(h=1, col='grey')
 abline(h=0, col='grey')
-dev.off()
+
+# dev.off()
 
 ##### 05. Statistical inference #####
 Get.Coefs <- function(model) {
@@ -220,7 +223,7 @@ tr <- sorted %>%
   annotate("text", x=16.5, y=1.01, label= '"Tier 2"') +
   annotate("text", x=27.5, y=0.96, label= '"Tier 3"')
   
-ggsave("./images/team_ratings.png", tr, height = 5, width = 7)
+# ggsave("images/team_ratings.png", tr, height = 5, width = 7)
 
 # matrix
 mat <- team %>%
@@ -241,7 +244,7 @@ mat <- team %>%
   geom_abline(intercept = 0, slope = 1, color = 'red', linetype = 'dashed') + 
   geom_vline(xintercept = mean(team$avg_exp_betw), color = 'red', linetype = 'dashed')
 
-ggsave("./images/pp_matrix.png", mat, height = 5, width = 7)
+# ggsave("images/pp_matrix.png", mat, height = 5, width = 7)
 
 ##### 07. Probabilities of success #####
 probs <- rolled %>% mutate(prob = pnorm(oe, mu, sig)) 
@@ -277,9 +280,9 @@ Get.Animation <- function(week=1, game, play) {
     mutate(prob = pnorm(oe, mu, sig)) %>% 
     dplyr::select(week, gameId, playId, frameId, oe, prob, desc_play)
   
-  tracking_example <- fread('https://raw.githubusercontent.com/bscod27/big-man-betweenness/main/data/week1.gz')
-  games_sum <- read_csv('https://raw.githubusercontent.com/bscod27/big-man-betweenness/main/data/games.csv') 
-  plays_sum <- read_csv('https://raw.githubusercontent.com/bscod27/big-man-betweenness/main/data/plays.csv') 
+  tracking_example <- read.csv('data/week1.csv')
+  games_sum <- read_csv('data/games.csv') 
+  plays_sum <- read_csv('data/plays.csv') 
   
   out <- tracking_example %>% 
     inner_join(games_sum) %>% 
@@ -301,7 +304,7 @@ plotly_stats <- df %>%
   mutate(prob = pnorm(oe, mu, sig)) %>% 
   dplyr::select(week, gameId, playId, frameId, oe, prob, desc_play) 
 
-write.csv(plotly_stats, './gifs/plotly_stats.csv', row.names=FALSE)
+# write.csv(plotly_stats, 'data/plotly_stats.csv', row.names=FALSE)
 
 # ggplot2 visualization
 xmin <- 0
@@ -352,4 +355,5 @@ animate.play <- ggplot() +
   ease_aes('linear') + 
   NULL
 
-anim_save('./gifs/ggplot2_anim.gif', animate.play, units = 'in', height=5, width=5, res=150)
+animate.play
+anim_save('gifs/ggplot2_anim.gif', animate.play, units = 'in', height=5, width=5, res=150)

@@ -1,21 +1,22 @@
+setwd('~/01. Dartmouth/04. Coursework/05. Fall 2022/03. Big Data Bowl/04. Linked Git/')
+
 library(tidyverse)
-library(data.table)
 library(igraph)
 library(lme4)
 library(latex2exp)
+library(magick)
 
 euclidean_dist <- function(x, y) {sqrt(sum((x - y)^2))}
 
 ##### 00. Read in the data #####
-data_str <- 'https://raw.githubusercontent.com/bscod27/big-man-betweenness/main/data/'
-games <- read.csv('games.csv')
-plays <- read.csv('plays.csv')
-players <- read.csv('players.csv')
-pffScoutingData <- read.csv('pffScoutingData.csv')
+games <- read.csv('data/games.csv')
+plays <- read.csv('data/plays.csv')
+players <- read.csv('data/players.csv')
+pffScoutingData <- read.csv('data/pffScoutingData.csv')
 
 tracking <- data.frame()
-for (i in list.files(pattern='week.*\\.csv')) {
-  df <- read.csv(i)
+for (i in list.files(path = 'data', pattern='week')) {
+  df <- read.csv(paste0('data/', i))
   df$week <- as.numeric(substr(i, 5, 5))
   tracking <- rbind(tracking, df)
 }
@@ -28,9 +29,11 @@ df <- tracking %>%
   left_join(games, by = c('week', 'gameId'))
 
 rm(tracking)
-colnames(df)
 
 ##### 02. Loop through tracking and define networks for each play #####
+dir.create('data/betw')
+dir.create('data/pos')
+
 for (week in 1:length(unique(df$week))) { # unique weeks
   print(paste0('Week: ',week))
   sliced <- df[df$week == week, ]
@@ -40,7 +43,7 @@ for (week in 1:length(unique(df$week))) { # unique weeks
     print(paste0(' Game: ',game_count,'/',length(unique(sliced$gameId))))
     temp <- sliced %>% filter(gameId == game)
     
-    for (play in unique(temp$playId)[19]) { # want play 19
+    for (play in unique(temp$playId)[19]) { # want play 19 -- check this
       print(play)
       dat <- temp %>% filter(playId == play)
       
@@ -147,7 +150,7 @@ for (week in 1:length(unique(df$week))) { # unique weeks
           V(g)$label.cex = .5
           
           # first
-          png(paste('./gifs/pos/gif_',frame,'.png'), units='in', height=5, width=5,res=300)
+          png(paste0('data/pos/image_',ifelse(str_length(frame)==1, paste0('0',frame), frame),'.png'), units='in', height=5, width=5,res=300)
           plot(g, layout=l, vertex.label=V(g)$pos)
           dev.off()
           
@@ -155,7 +158,7 @@ for (week in 1:length(unique(df$week))) { # unique weeks
           l_idx <- which(names(V(g)) %in% line_slice$player)
           betw <- betweenness(g, normalized = T)
           V(g)$betw <- betw
-          png(paste('./gifs/betw/gif_',frame,'.png'), units='in', height=5, width=5,res=300)
+          png(paste0('data/betw/image_',ifelse(str_length(frame)==1, paste0('0',frame), frame),'.png'), units='in', height=5, width=5,res=300)
           plot(g, layout=l, vertex.label=V(g)$pos)
           text(
             0, 1.25, TeX(
@@ -169,6 +172,19 @@ for (week in 1:length(unique(df$week))) { # unique weeks
     }
     game_count <- game_count + 1
     break
-    }
+  }
   break
 }
+
+##### 03. Produce animations #####
+create_animation <- function(arg) {
+  list.files(path = paste0('data/', arg), pattern = '.png', full.names = TRUE) %>% 
+    image_read() %>% 
+    image_crop(., '1100x1100+265+150') %>% 
+    image_join() %>% 
+    image_animate(fps = 4) %>% 
+    image_write(paste0('gifs/',arg,'_anim.gif'), density = 300)
+}
+
+create_animation('pos')
+create_animation('betw')

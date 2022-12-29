@@ -1,5 +1,6 @@
+setwd('~/01. Dartmouth/04. Coursework/05. Fall 2022/03. Big Data Bowl/04. Linked Git/')
+
 library(tidyverse)
-library(data.table)
 library(igraph)
 
 args <- commandArgs(trailingOnly = TRUE)
@@ -11,14 +12,14 @@ week <- args[1]
 euclidean_dist <- function(x, y) {sqrt(sum((x - y)^2))}
 
 ##### 00. Read in the data #####
-games <- read.csv('games.csv')
-plays <- read.csv('plays.csv')
-players <- read.csv('players.csv')
-pffScoutingData <- read.csv('pffScoutingData.csv')
+games <- read.csv('data/games.csv')
+plays <- read.csv('data/plays.csv')
+players <- read.csv('data/players.csv')
+pffScoutingData <- read.csv('data/pffScoutingData.csv')
 
 tracking <- data.frame()
-for (i in list.files(pattern='week.*\\.csv')) {
-  df <- read.csv(i)
+for (i in list.files(path = 'data', pattern='week')) {
+  df <- read.csv(paste0('data/', i))
   df$week <- as.numeric(substr(i, 5, 5))
   tracking <- rbind(tracking, df)
 }
@@ -184,4 +185,4 @@ main <- df_line %>%
   left_join(plays, by = c('gameId', 'playId')) %>%
   left_join(games, by = c('week', 'gameId'))
 
-write.csv(main, paste0('./builds/build',week,'.csv'))
+write.csv(main, paste0('data/build',week,'.csv'))
