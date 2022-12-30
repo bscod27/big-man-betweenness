@@ -1,3 +1,5 @@
+## NOTE: Please set working directory to root of the repository folder structure ##
+
 import plotly
 import plotly.express as px
 import plotly.graph_objects as go
@@ -6,7 +8,7 @@ import matplotlib.pyplot as plt
 
 # load data
 bmb = pd.read_csv('data/plotly_stats.csv')
-week1 = pd.read_csv('data/plotly_tracking.csv')
+week1 = pd.read_csv('data/week1.csv')
 
 p, g = 3828, 2021091207
 df = week1[(week1.playId==p)]
