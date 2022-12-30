@@ -62,8 +62,6 @@ main %>%
   dplyr::select(-contains(c('dt_', 'result_'))) %>% 
   dplyr::select(week, gameId, playId, frameId, contains('any_'), everything()) -> df
 
-str(df)
-
 ##### 03. Play-level roll up #####
 rolled <- df %>% 
   group_by(desc_posteam, week, gameId, playId) %>% 
@@ -88,9 +86,9 @@ rolled <- df %>%
     line_betw, everything()
     )
 
-# rolled %>%
-#   dplyr::select(week, gameId, playId, pos_team, def_team, down, yardstogo, contains('def'), line_betw, pressure) %>%
-#   write.csv(., 'data/rolled.csv', row.names = FALSE)
+rolled %>%
+  dplyr::select(week, gameId, playId, pos_team, def_team, down, yardstogo, contains('def'), line_betw, pressure) %>%
+  write.csv(., 'data/rolled.csv', row.names = FALSE)
 
 ##### 04. Create BMB metric  #####
 summary(mod <- lmer(
@@ -100,7 +98,7 @@ rolled$exp <- predict(mod, rolled)
 rolled$oe <- sqrt(rolled$line_betw)/rolled$exp
 
 
-# png('images/sampling_distribution.png', units='in', width=11, height=5, res=700)
+png('images/sampling_distribution.png', units='in', width=11, height=5, res=700)
 
 par(mfrow=c(1, 2))
 plot(
@@ -134,7 +132,7 @@ legend(
 abline(h=1, col='grey')
 abline(h=0, col='grey')
 
-# dev.off()
+dev.off()
 
 ##### 05. Statistical inference #####
 Get.Coefs <- function(model) {
@@ -223,7 +221,7 @@ tr <- sorted %>%
   annotate("text", x=16.5, y=1.01, label= '"Tier 2"') +
   annotate("text", x=27.5, y=0.96, label= '"Tier 3"')
   
-# ggsave("images/team_ratings.png", tr, height = 5, width = 7)
+ggsave("images/team_ratings.png", tr, height = 5, width = 7)
 
 # matrix
 mat <- team %>%
@@ -244,7 +242,7 @@ mat <- team %>%
   geom_abline(intercept = 0, slope = 1, color = 'red', linetype = 'dashed') + 
   geom_vline(xintercept = mean(team$avg_exp_betw), color = 'red', linetype = 'dashed')
 
-# ggsave("images/pp_matrix.png", mat, height = 5, width = 7)
+ggsave("images/pp_matrix.png", mat, height = 5, width = 7)
 
 ##### 07. Probabilities of success #####
 probs <- rolled %>% mutate(prob = pnorm(oe, mu, sig)) 
@@ -304,7 +302,7 @@ plotly_stats <- df %>%
   mutate(prob = pnorm(oe, mu, sig)) %>% 
   dplyr::select(week, gameId, playId, frameId, oe, prob, desc_play) 
 
-# write.csv(plotly_stats, 'data/plotly_stats.csv', row.names=FALSE)
+write.csv(plotly_stats, 'data/plotly_stats.csv', row.names=FALSE)
 
 # ggplot2 visualization
 xmin <- 0
