@@ -1,5 +1,5 @@
 # big-man-betweenness
-This repository contains all working material pertinent to the Big Man Betweenness [notebook](https://www.kaggle.com/code/brunoscodari/big-man-betweenness-bmb), which was submitted to the NFL Big Data Bowl 2023 [competition](https://www.kaggle.com/competitions/nfl-big-data-bowl-2023). 
+This repository contains all working material pertinent to the Big Man Betweenness [notebook](https://www.kaggle.com/code/brunoscodari/big-man-betweenness-bmb), which was submitted to the 2023 NFL Big Data Bowl [competition](https://www.kaggle.com/competitions/nfl-big-data-bowl-2023). 
 
 ## Reproducibility
 For those seeking to reproduce our work, we recommend the following: 
