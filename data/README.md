@@ -14,4 +14,4 @@ This is a placeholder folder for all project data, including the following:
   - `pos` folder
   - `betw` folder
 
-We have not stored any `.csv` files in this folder, as the competition [rules](https://www.kaggle.com/competitions/nfl-big-data-bowl-2023/rules) prohibit public redistribution of data.
+Note: We have not stored any `.csv` files in this folder, as the competition [rules](https://www.kaggle.com/competitions/nfl-big-data-bowl-2023/rules) prohibit public redistribution of data.
