@@ -1,4 +1,4 @@
-setwd('~/01. Dartmouth/04. Coursework/05. Fall 2022/03. Big Data Bowl/04. Linked Git')
+## NOTE: Please set working directory to root of the repository folder structure ##
 
 Transform.Values <- function(x) {1.025**(x)-1}
 
