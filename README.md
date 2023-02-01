@@ -20,6 +20,7 @@ The following scripts were used in this project and executed in chronological or
     - *Note: this script has been programmed to be executed via the command line and fed a positional argument specifying the week/batch of interest; this was done to enable parallel computation, as the program is computationally expensive*
 2. `analysis.R` - wrangles the builds into analysis-friendly form and produces the results
 3. `gifs.R` - creates the `igraph` network animations
+4. `sample_space.R` - generates `sample_space.png`, which is shown in the report
 
 We use relative path notation in our scripts, as we assume the user sets their working directory to the root of the current folder structure.
 
