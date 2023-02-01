@@ -7,6 +7,8 @@ library(latex2exp)
 library(magick)
 
 euclidean_dist <- function(x, y) {sqrt(sum((x - y)^2))}
+transform_values <- function(x) {1.025^x-1}
+inv_transform <- function(y) {log(y+1)/log(1.025)}
 
 ##### 00. Read in the data #####
 games <- read.csv('data/games.csv')
@@ -15,7 +17,7 @@ players <- read.csv('data/players.csv')
 pffScoutingData <- read.csv('data/pffScoutingData.csv')
 
 tracking <- data.frame()
-for (i in list.files(path = 'data', pattern='week')) {
+for (i in list.files(path = 'data', pattern = 'week')) {
   df <- read.csv(paste0('data/', i))
   df$week <- as.numeric(substr(i, 5, 5))
   tracking <- rbind(tracking, df)
@@ -115,6 +117,7 @@ for (week in 1:length(unique(df$week))) { # unique weeks
         
         if(nrow(out)>0) { # sometimes there is no ball snap in the data, so out will be null
           # extract edges, nodes, and create graph
+          out$dist[which(out$player_pos=='offense')] <- 10 # tricking R to not showing these edges
           edges <- out[, c('ref','player')] %>% unique(.)
           nodes <- rbind(
             data.frame(player=out$ref[1], 'player_pos'='qb'),
@@ -129,11 +132,11 @@ for (week in 1:length(unique(df$week))) { # unique weeks
           ) %>% 
             left_join(players[, c('nflId', 'officialPosition')], by=c('player'='nflId'))
           g <- graph.data.frame(edges, directed=FALSE)
-          E(g)$weight <- unique(1/out$dist) # inverse weighting scheme with restriction
+          E(g)$weight <- transform_values(out$dist) # transform the edges
           
           # plot 1
           l <- layout.auto(g)
-          qb_slice <- qb %>% select('player'=nflId, x, y)
+          qb_slice <- qb %>% dplyr::select('player'= nflId, x, y)
           line_slice <- out %>% filter(player_pos=='line') %>% dplyr::select(player,x,y) %>% unique(.)
           def_slice <- out %>% filter(player_pos=='defense') %>% dplyr::select(player,x,y) %>% unique(.)
           off_slice <- out %>% filter(player_pos=='offense') %>% dplyr::select(player,x,y) %>% unique(.)
@@ -145,26 +148,26 @@ for (week in 1:length(unique(df$week))) { # unique weeks
           V(g)$name <- nodes$player
           V(g)$color <- nodes$color
           V(g)$pos <- nodes$officialPosition
-          g <- delete.edges(g, which(1/E(g)$weight > 7))
-          edge_attr(g)$weight[which(1/E(g)$weight > 7)] <- 0.00001 # really low value
+          edge_attr(g)$weight[which(inv_transform(E(g)$weight) == 0)] <- 0.001 # deal with zeroes 
+          g <- delete.edges(g, which(inv_transform(E(g)$weight) > 7)) # remove edges >7 yards
           V(g)$label.cex = .5
           
           # first
-          png(paste0('data/pos/image_',ifelse(str_length(frame)==1, paste0('0',frame), frame),'.png'), units='in', height=5, width=5,res=300)
+          png(paste0('data/pos/image',ifelse(str_length(frame)==1, paste0('0',frame), frame),'.png'), units='in', height=5, width=5,res=300)
           plot(g, layout=l, vertex.label=V(g)$pos, vertex.frame.color=NA)
           dev.off()
           
           # second
           l_idx <- which(names(V(g)) %in% line_slice$player)
-          betw <- betweenness(g, normalized = T)
+          betw <- betweenness(g, normalized = TRUE)
           V(g)$betw <- betw
-          png(paste0('data/betw/image_',ifelse(str_length(frame)==1, paste0('0',frame), frame),'.png'), units='in', height=5, width=5,res=300)
+          png(paste0('data/betw/image',ifelse(str_length(frame)==1, paste0('0',frame), frame),'.png'), units='in', height=5, width=5,res=300)
           plot(g, layout=l, vertex.label=V(g)$pos, vertex.frame.color=NA)
           text(
             0, 1.25, TeX(
-            paste('$\\sqrt{O-line \\ betweenness} = $',format(signif(mean(sqrt(betw[l_idx])),digits=10), nsmall=10))
-              )
+              paste('$\\sqrt{O-line \\ betweenness} = $',format(signif(mean(sqrt(betw[l_idx])),digits=10), nsmall=10))
             )
+          )
           dev.off()
         }
       }
@@ -180,10 +183,9 @@ for (week in 1:length(unique(df$week))) { # unique weeks
 create_animation <- function(arg) {
   list.files(path = paste0('data/', arg), pattern = '.png', full.names = TRUE) %>% 
     image_read() %>% 
-    image_crop(., '2100x2000+300+200') %>%
     image_join() %>% 
-    image_animate(fps = 4) %>% 
-    image_write(paste0('gifs/',arg,'_anim.gif'))
+    image_animate(fps = 5) %>% 
+    image_write(paste0('gifs/',arg,'_anim.gif'), format = 'gif')
 }
 
 create_animation('pos')

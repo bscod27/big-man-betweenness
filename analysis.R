@@ -3,18 +3,19 @@
 library(tidyverse)
 library(lme4)
 library(sfsmisc)
+library(fGarch)
 library(latex2exp)
 library(nflfastR)
 library(ggimage)
 library(ggthemes) 
 library(gganimate)
 library(cowplot)
-library(teamcolors) 
+library(teamcolors)
 
 ##### 01. Data load #####
 main <- data.frame()
-for (i in 1:8) {
-  main <- rbind(main, read.csv(paste0('data/build', i, '.csv')))
+for (i in c(1:8)) {
+  main <- rbind(main, read.csv(paste0('data/build_transformed_', i, '.csv'))) # NORMAL
 }
 
 ##### 02. Data wrangling #####
@@ -71,7 +72,7 @@ rolled <- df %>%
     hit = mean(any_hit),
     sack = mean(any_sack),
     frame_count = n(), 
-    line_betw = mean(line_betw_mean), 
+    line_betw = mean(sqrt(line_betw_mean)), # take the sqrt!
     down = mean(desc_down),
     yardstogo = mean(desc_yardstogo),
     def_coverage = modeest::mlv(def_coverage) %>% factor(.),
@@ -86,23 +87,21 @@ rolled <- df %>%
     line_betw, everything()
     )
 
-rolled %>%
-  dplyr::select(week, gameId, playId, pos_team, def_team, down, yardstogo, contains('def'), line_betw, pressure) %>%
-  write.csv(., 'data/rolled.csv', row.names = FALSE)
-
 ##### 04. Create BMB metric  #####
 summary(mod <- lmer(
-  sqrt(line_betw) ~ def_playersinbox + (1|week) + (1|gameId) + (1|pos_team) + (1|def_team), 
+  rolled$line_betw ~ def_playersinbox + (1|week) + (1|gameId) + (1|pos_team) + (1|def_team), 
   data=rolled))
+
 rolled$exp <- predict(mod, rolled)
-rolled$oe <- sqrt(rolled$line_betw)/rolled$exp
+rolled$oe <- rolled$line_betw/rolled$exp
 
-
-png('images/sampling_distribution.png', units='in', width=11, height=5, res=700)
-
+png('images/sampling_distribution.png', units='in', width=12, height=5, res=700)
 par(mfrow=c(1, 2))
+
+# PDF
+sn_params <- snormFit(rolled$oe)$par
 plot(
-  density(rolled$oe, bw=.065), 
+  density(rolled$oe),  # tweak the density
   main='Probability Density Function', 
   col='blue', 
   xlab='Quantile '
@@ -110,24 +109,30 @@ plot(
 mu <- mean(rolled$oe); sig <- sd(rolled$oe)
 x <- seq(0, 2, length.out=10000)
 y_norm <- dnorm(x, mu, sig)
-lines(x, y_norm, col='red')
+lines(x, y_norm, col='darkgreen')
+y_skewnorm <- dsnorm(x, sn_params['mean'], sn_params['sd'], sn_params['xi'])
+lines(x, y_skewnorm, col='red')
 legend(
-  x='right', col=c('blue', 'red'), lty=1,
-  legend=c('Empirical', 'Normal Approx.')
+  x='right', col=c('blue', 'darkgreen', 'red'), lty=1,
+  legend=c('Empirical', 'Normal', 'Skew Normal')
   )
 abline(h=0, col='grey')
 
+# CDF
 ecdf.ksCI(
   rolled$oe, main="Cumulative Distribution Function",
   col='red', ci.col=NA, xlab='Quantile', ylab='Probability', 
   )
 p <- seq(0, 1, length.out=1000)
-quantile <- qnorm(p, mean = mu, sd = sig)
-f_x <- pnorm(quantile, mu, sig)
+quantile <- qsnorm(p, sn_params['mean'], sn_params['sd'], sn_params['xi'])
+f_x <- psnorm(quantile, sn_params['mean'], sn_params['sd'], sn_params['xi'])
 lines(quantile, f_x, col='blue')
+quantile <- qnorm(p, mu, sig)
+f_x <- pnorm(quantile, mu, sig)
+lines(quantile, f_x, col='darkgreen')
 legend(
-  x='right', col=c('blue', 'red'), lty=1,
-  legend=c('Empirical', 'Normal Approx.')
+  x='right', col=c('blue', 'darkgreen', 'red'), lty=1,
+  legend=c('Empirical', 'Normal', 'Skew Normal')
 )
 abline(h=1, col='grey')
 abline(h=0, col='grey')
@@ -148,9 +153,11 @@ Get.Coefs <- function(model) {
   return(out)
 }
 
+rolled$oe_standardized <- rolled$oe*100
+
 # model 1
 summary(o1 <- glmer(
-  pressure ~ oe + 
+  pressure ~ oe_standardized +
     (1|pos_team) + (1|def_team) + (1|week) + (1|gameId), 
   data = rolled, 
   family = binomial)
@@ -159,7 +166,7 @@ summary(o1 <- glmer(
 # model 2
 rolled$def_covtype = rolled$def_covtype %>% factor(.) %>% relevel(ref='Other')
 summary(o2 <- glmer(
-  pressure ~ oe + def_playersinbox + def_covtype +
+  pressure ~ oe_standardized + def_playersinbox + def_covtype +
     (1|pos_team) + (1|def_team) + (1|week) + (1|gameId), 
   data = rolled, 
   family = binomial)
@@ -170,28 +177,28 @@ rolled$down <- ifelse(rolled$down==1, '1st', ifelse(rolled$down==2, '2nd',ifelse
                ifelse(rolled$down==4|rolled$down==0, '4th/2pc',NA)))) %>% factor(.) %>% relevel(ref = '1st')
 
 summary(o3 <- glmer(
-  pressure ~ oe + def_playersinbox + def_covtype + yardstogo + down +
+  pressure ~ oe_standardized + def_playersinbox + def_covtype + yardstogo + down +
     (1|pos_team) + (1|def_team) + (1|week) + (1|gameId), 
   data = rolled, 
   family = binomial)
   )
 
-# coeficients for table 
+# coeficients for table
 Get.Coefs(o1)
 Get.Coefs(o2)
 Get.Coefs(o3)
 
-##### 06. Team ratings #####
+##### 06. Team ratings ##### 
 team <- rolled %>%
   group_by(pos_team) %>%
   dplyr::summarise(
-    avg_definbox = mean(def_playersinbox),
-    avg_sqrt_betw = mean(sqrt(line_betw))
-  ) 
+    avg_definbox = mean(def_playersinbox), 
+    avg_betw = mean(line_betw)
+  )
 
 coefs <- summary(mod)$coefficients[, 1]
 team$avg_exp_betw <- coefs[1]+(coefs[2]*team$avg_definbox)
-team$avg_bmb <- team$avg_sqrt_betw/team$avg_exp_betw
+team$avg_bmb <- team$avg_betw/team$avg_exp_betw
 
 sorted <- team %>% 
   arrange(desc(avg_bmb)) %>% 
@@ -215,23 +222,23 @@ tr <- sorted %>%
     plot.title = element_text(hjust = 0.5)
   ) +
   geom_hline(yintercept = 1, color='red', linetype = 'dashed') +
-  geom_hline(yintercept = 1.02, color='grey', linetype = 'dashed') +
-  geom_hline(yintercept = 0.98, color='grey', linetype = 'dashed') + 
-  annotate("text", x=5, y=1.045, label= '"Tier 1"') +
+  geom_vline(xintercept = 10.5, color='grey', linetype = 'dashed') +
+  geom_vline(xintercept = 22.5, color='grey', linetype = 'dashed') +
+  annotate("text", x=5.75, y=1.03, label= '"Tier 1"') +
   annotate("text", x=16.5, y=1.01, label= '"Tier 2"') +
-  annotate("text", x=27.5, y=0.96, label= '"Tier 3"')
-  
+  annotate("text", x=27.5, y=0.99, label= '"Tier 3"')
+
 ggsave("images/team_ratings.png", tr, height = 5, width = 7)
 
 # matrix
 mat <- team %>%
   left_join(nflfastR::teams_colors_logos, by = c('pos_team' = 'team_abbr')) %>% 
-  ggplot(aes(x = avg_exp_betw, y = avg_sqrt_betw)) +
+  ggplot(aes(x = avg_exp_betw, y = avg_betw)) +
   geom_image(aes(image = team_logo_wikipedia), size = 0.035, by = "width", asp = asp_ratio) +
   scale_fill_identity(aesthetics = c("fill", "color")) +
   labs(
-    x = TeX('Expected $\\sqrt{O-line \\ betweenness}$'),
-    y=TeX('Observed $\\sqrt{O-line \\ betweenness}$'), 
+    x = 'Expected O-line betweenness',
+    y= 'Observed O-line betweenness', 
     title='O-line Pass Protection Efficiency Matrix'
   ) +
   theme_classic() +
@@ -239,28 +246,28 @@ mat <- team %>%
     aspect.ratio = 1/asp_ratio, 
     plot.title = element_text(hjust = 0.5)
   ) + 
-  geom_abline(intercept = 0, slope = 1, color = 'red', linetype = 'dashed') + 
+  geom_abline(intercept = 0, slope = 1, color = 'red', linetype = 'dashed') +
   geom_vline(xintercept = mean(team$avg_exp_betw), color = 'red', linetype = 'dashed')
 
 ggsave("images/pp_matrix.png", mat, height = 5, width = 7)
 
 ##### 07. Probabilities of success #####
-probs <- rolled %>% mutate(prob = pnorm(oe, mu, sig)) 
+probs <- rolled %>% mutate(prob = psnorm(oe, sn_params['mean'], sn_params['sd'], sn_params['xi'])) 
 
 probs %>% 
-  filter(pos_team == 'DAL') %>% 
+  filter(pos_team == 'DEN') %>% 
   group_by(Coverage = def_coverage) %>% 
   summarize('Probability' = mean(prob)) %>% 
   arrange(desc(Probability)) 
 
 probs %>% 
-  filter(pos_team == 'DAL') %>% 
+  filter(pos_team == 'DEN') %>% 
   group_by(Down = down) %>% 
   summarize('Probability' = mean(prob)) %>% 
   arrange(desc(Probability)) 
 
 probs %>% 
-  filter(pos_team == 'DAL') %>% 
+  filter(pos_team == 'DEN') %>% 
   group_by('Coverage type' = def_covtype) %>% 
   summarize('Probability' = mean(prob)) %>% 
   arrange(desc(Probability)) 
@@ -275,7 +282,7 @@ df$oe <- sqrt(df$line_betw_mean)/df$exp
 Get.Animation <- function(week=1, game, play) {
   example <- df %>%  
     filter(week==week, gameId==game, playId==play) %>%
-    mutate(prob = pnorm(oe, mu, sig)) %>% 
+    mutate(prob = psnorm(oe, sn_params['mean'], sn_params['sd'], sn_params['xi'])) %>% 
     dplyr::select(week, gameId, playId, frameId, oe, prob, desc_play)
   
   tracking_example <- read.csv('data/week1.csv')
@@ -294,12 +301,12 @@ Get.Animation <- function(week=1, game, play) {
 }
 
 # ggplot2 data
-example <- Get.Animation(game=2021091201, play=1367) 
+example <- Get.Animation(game=2021091201, play=1367)
 
 # plotly data
 plotly_stats <- df %>%  
   filter(week==1, gameId==2021091207, playId==3828) %>%
-  mutate(prob = pnorm(oe, mu, sig)) %>% 
+  mutate(prob = psnorm(oe, sn_params['mean'], sn_params['sd'], sn_params['xi'])) %>% 
   dplyr::select(week, gameId, playId, frameId, oe, prob, desc_play) 
 
 write.csv(plotly_stats, 'data/plotly_stats.csv', row.names=FALSE)
@@ -353,5 +360,4 @@ animate.play <- ggplot() +
   ease_aes('linear') + 
   NULL
 
-animate.play
 anim_save('gifs/ggplot2_anim.gif', animate.play, units = 'in', height=5, width=5, res=150)

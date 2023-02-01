@@ -10,18 +10,21 @@ if (length(args) != 1) {
 week <- args[1]
 
 euclidean_dist <- function(x, y) {sqrt(sum((x - y)^2))}
+transform_values <- function(x) {1.025^x-1}
+inv_transform <- function(y) {log(y+1)/log(1.025)}
 
 ##### 00. Read in the data #####
-games <- read.csv('data/games.csv')
-plays <- read.csv('data/plays.csv')
-players <- read.csv('data/players.csv')
-pffScoutingData <- read.csv('data/pffScoutingData.csv')
-
 tracking <- data.frame()
-for (i in list.files(path = 'data', pattern='week')) {
-  df <- read.csv(paste0('data/', i))
-  df$week <- as.numeric(substr(i, 5, 5))
-  tracking <- rbind(tracking, df)
+for (i in list.files(pattern='.csv')) {
+  print(paste0(i,'...'))
+  df <- read.csv(i)
+  if (str_detect(str_match(i, '(.*).csv')[2], 'week')) {
+    df$week <- as.numeric(str_match(i, 'week(.*).csv')[2])
+    tracking <- rbind(tracking, df)
+  } else {
+    assign(str_match(i, '(.*).csv')[2], df)
+  }
+  rm(df)
 }
 
 ##### 01. Join all data into main frame #####
@@ -59,7 +62,7 @@ for (game in unique(sliced$gameId)) {
       sack <- ifelse(sum(line$pff_sackAllowed, na.rm=T)>1,1,0)
       hit <- ifelse(sum(line$pff_hitAllowed, na.rm=T)>1,1,0)
       
-      # get distances between QB and all other players
+      # get distances between the QB and defense and the QB and O-line
       q_xy <- qb %>% dplyr::select(x,y) %>% unique(.)
       
       for (lineman in unique(line$nflId)){
@@ -87,7 +90,7 @@ for (game in unique(sliced$gameId)) {
       for (attacker in unique(offense$nflId)){
         o_xy <- offense %>% filter(nflId == attacker) %>% dplyr::select(x,y) %>% unique(.)
         add <- data.frame(
-          week,'gameId'=game,'playId'=play,'frameId'=frame,'event'=qb$event, 
+          week,'gameId'=game,'playId'=play,'frameId'=frame,'event'=qb$event,
           'ref'=qb$nflId,'player'=attacker,'player_pos'='offense','dist'=euclidean_dist(q_xy,o_xy),q_xy, o_xy, hurry, sack, hit,
           'pos_team'=unique(qb$possessionTeam), 'def_team'=unique(qb$defensiveTeam)
         )
@@ -95,7 +98,7 @@ for (game in unique(sliced$gameId)) {
         out <- rbind(out, add)
       }
       
-      # get distances between offensive line and all defensive players defense
+      # get distances between O-line and defense
       for (lineman in unique(line$nflId)){
         coord <- line %>% filter(nflId == lineman) %>% dplyr::select(x,y)
         for (defender in unique(defense$nflId)){
@@ -112,6 +115,7 @@ for (game in unique(sliced$gameId)) {
       
       if(nrow(out)>0) { # sometimes there is no ball snap in the data, so out will be null
         # extract edges, nodes, and create graph
+        out$dist[which(out$player_pos=='offense')] <- 10 # tricking R to not showing these edges
         edges <- out[, c('ref','player')] %>% unique(.)
         nodes <- rbind(
           data.frame(player=out$ref[1], 'player_pos'='qb'),
@@ -125,7 +129,7 @@ for (game in unique(sliced$gameId)) {
           )
         )
         g <- graph.data.frame(edges, directed=FALSE)
-        E(g)$weight <- unique(1/out$dist) # inverse weighting scheme with restriction
+        E(g)$weight <- transform_values(out$dist) # transform the edges
         
         # plot
         l <- layout.auto(g)
@@ -140,15 +144,14 @@ for (game in unique(sliced$gameId)) {
         l <- as.matrix(rbind(qb_slice, line_slice, def_slice, off_slice)[, 2:3])
         V(g)$name <- nodes$player
         V(g)$color <- nodes$color
-        g <- delete.edges(g, which(1/E(g)$weight > 7))
-        edge_attr(g)$weight[which(1/E(g)$weight > 7)] <- 0.00001 # really low value
-        plot(g, layout=l)
+        edge_attr(g)$weight[which(inv_transform(E(g)$weight) == 0)] <- 0.001 # deal with zeroes 
+        g <- delete.edges(g, which(inv_transform(E(g)$weight) > 7)) # remove edges >7 yards
         
         # calculate various network measures
         l_idx <- which(names(V(g)) %in% line_slice$player)
         
         # node measures
-        betw <- betweenness(g, normalized = T)
+        betw <- betweenness(g, normalized = TRUE)
         eigs <- eigen_centrality(g)$vector
         close <- closeness(g)
         
@@ -172,6 +175,7 @@ for (game in unique(sliced$gameId)) {
           preds
         )
         df_line <- rbind(df_line, append_df)
+        
       }
     }
   }
@@ -180,6 +184,7 @@ for (game in unique(sliced$gameId)) {
 
 df_line$week <- as.integer(df_line$week)
 games$week <- as.integer(games$week)
+
 
 main <- df_line %>%
   left_join(plays, by = c('gameId', 'playId')) %>%
