@@ -1,10 +1,9 @@
-## NOTE: Please set working directory to root of the repository folder structure ##
-
 import plotly
 import plotly.express as px
 import plotly.graph_objects as go
 import pandas as pd
 import matplotlib.pyplot as plt
+
 
 # load data
 bmb = pd.read_csv('data/plotly_stats.csv')
@@ -89,4 +88,4 @@ for button in fig.layout.updatemenus[0].buttons:
     button['args'][1]['frame']['redraw'] = True
 
 # write html
-fig.write_html('gifs/plotly_html.html')
+fig.write_html('./plotly_html.html')
