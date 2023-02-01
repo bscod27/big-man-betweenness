@@ -1,6 +1,6 @@
 ## NOTE: Please set working directory to root of the repository folder structure ##
 
-Transform.Values <- function(x) {1.025**(x)-1}
+Transform.Values <- function(x) {1.025^x-1}
 
 Compute.Isoceles <- function(angle, base) {
   theta <- (180-angle)/2
