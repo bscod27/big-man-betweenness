@@ -163,11 +163,7 @@ for (week in 1:length(unique(df$week))) { # unique weeks
           V(g)$betw <- betw
           png(paste0('data/betw/image',ifelse(str_length(frame)==1, paste0('0',frame), frame),'.png'), units='in', height=5, width=5,res=300)
           plot(g, layout=l, vertex.label=V(g)$pos, vertex.frame.color=NA)
-          text(
-            0, 1.25, TeX(
-              paste('$\\sqrt{O-line \\ betweenness} = $',format(signif(mean(sqrt(betw[l_idx])),digits=10), nsmall=10))
-            )
-          )
+          text(0, 1.25, paste('O-line betweenness = ',format(signif(mean(sqrt(betw[l_idx])),digits=10), nsmall=10)))
           dev.off()
         }
       }
